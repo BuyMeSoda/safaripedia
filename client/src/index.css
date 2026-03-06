@@ -116,3 +116,10 @@
   background-size: 200% 100%;
   animation: shimmer 2s infinite linear;
 }
+body {
+  background-color: #0d1208 !important;
+  color: #f5f0e8 !important;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Georgia', 'Times New Roman', serif !important;
+}
