@@ -432,6 +432,7 @@ export default function Safaripedia() {
   const [opApplication, setOpApplication] = useState({ companyName: "", contactName: "", email: "", phone: "", website: "", countries: "", yearsInBusiness: "", reference: "" });
   const [opApplicationError, setOpApplicationError] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [opMenuOpen, setOpMenuOpen] = useState(false);
   const resultRef = useRef(null);
 
   // On mount, check URL for /trip/:id or /admin
@@ -1230,7 +1231,29 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
             )}
             <button onClick={() => { window.location.href = "/"; }} style={{ background: "transparent", border: `1px solid ${BORDER}`, color: MUTED, borderRadius: "8px", padding: "0.4rem 1rem", fontSize: "0.78rem", fontFamily: FONT, cursor: "pointer" }}>← Back</button>
           </div>
+          <button
+            className="r-op-hamburger"
+            data-testid="button-op-hamburger"
+            onClick={() => setOpMenuOpen(!opMenuOpen)}
+            style={{ display: "none", background: "none", border: "none", color: G, fontSize: "1.6rem", cursor: "pointer", padding: "0.3rem", lineHeight: 1 }}
+          >
+            ☰
+          </button>
         </nav>
+        {opMenuOpen && (
+          <div className="r-op-mobile-menu" data-testid="op-mobile-menu" style={{ display: "none", flexDirection: "column", background: BG, borderBottom: `1px solid ${BORDER}`, position: "relative", zIndex: 9 }}>
+            {PORTAL_TABS.map(t => (
+              <span key={t.id} data-testid={`op-menu-item-${t.id}`} onClick={() => { setOpTab(t.id); if (t.id === "leads") fetchLeads(); setOpMenuOpen(false); }}
+                style={{ cursor: "pointer", color: opTab === t.id ? G : TEXT, fontFamily: FONT, fontSize: "1rem", padding: "1rem 2rem", borderBottom: `1px solid ${BORDER}`, transition: "color 0.2s", background: opTab === t.id ? "rgba(212,168,67,0.08)" : "transparent" }}>
+                {t.label}
+              </span>
+            ))}
+            <span data-testid="op-menu-item-back" onClick={() => { setOpMenuOpen(false); window.location.href = "/"; }}
+              style={{ cursor: "pointer", color: TEXT, fontFamily: FONT, fontSize: "1rem", padding: "1rem 2rem", transition: "color 0.2s" }}>
+              ← Back to Safaripedia
+            </span>
+          </div>
+        )}
 
         <div className="r-section" style={{ position: "relative", zIndex: 1, maxWidth: "1200px", margin: "0 auto", padding: "2rem 2rem 6rem" }}>
 

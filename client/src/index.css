@@ -177,33 +177,34 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 1.4rem !important;
   }
   .r-op-nav {
-    flex-direction: column !important;
+    flex-direction: row !important;
     gap: 0.6rem !important;
     padding: 0.8rem 0.8rem !important;
     overflow: hidden !important;
   }
   .r-op-nav-inner {
-    flex-direction: column !important;
+    flex-direction: row !important;
     gap: 0.6rem !important;
-    align-items: flex-start !important;
-    width: 100% !important;
+    align-items: center !important;
+    width: auto !important;
     min-width: 0 !important;
   }
   .r-op-logo {
     flex-wrap: wrap !important;
     gap: 0.4rem !important;
     min-width: 0 !important;
-    width: 100% !important;
   }
   .r-op-tabs {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    width: 100% !important;
-    flex-wrap: nowrap !important;
+    display: none !important;
   }
-  .r-op-tabs::-webkit-scrollbar { display: none; }
   .r-op-status {
-    flex-wrap: wrap !important;
+    display: none !important;
+  }
+  .r-op-hamburger {
+    display: block !important;
+  }
+  .r-op-mobile-menu {
+    display: flex !important;
   }
   .r-lead-card-header {
     flex-direction: column !important;
