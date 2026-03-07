@@ -20,9 +20,7 @@ export const api = {
       prompt: z.string().min(1, "Prompt is required"),
     }),
     responses: {
-      200: z.object({
-        response: z.string(),
-      }),
+      200: z.object({ response: z.string() }),
       400: errorSchemas.validation,
       500: errorSchemas.internal,
     },
@@ -33,9 +31,7 @@ export function buildUrl(path: string, params?: Record<string, string | number>)
   let url = path;
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
-      if (url.includes(`:${key}`)) {
-        url = url.replace(`:${key}`, String(value));
-      }
+      if (url.includes(`:${key}`)) url = url.replace(`:${key}`, String(value));
     });
   }
   return url;
