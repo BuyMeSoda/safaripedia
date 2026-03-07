@@ -431,6 +431,7 @@ export default function Safaripedia() {
   const [opApplicationSubmitted, setOpApplicationSubmitted] = useState(false);
   const [opApplication, setOpApplication] = useState({ companyName: "", contactName: "", email: "", phone: "", website: "", countries: "", yearsInBusiness: "", reference: "" });
   const [opApplicationError, setOpApplicationError] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const resultRef = useRef(null);
 
   // On mount, check URL for /trip/:id or /admin
@@ -1971,7 +1972,29 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
             Operators
           </span>
         </div>
+        <button
+          className="r-hamburger"
+          data-testid="button-hamburger"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          style={{ display: "none", background: "none", border: "none", color: G, fontSize: "1.6rem", cursor: "pointer", padding: "0.3rem", lineHeight: 1 }}
+        >
+          ☰
+        </button>
       </nav>
+      {mobileMenuOpen && (
+        <div className="r-mobile-menu" data-testid="mobile-menu" style={{ display: "none", flexDirection: "column", background: BG, borderBottom: `1px solid ${BORDER}`, position: "relative", zIndex: 9 }}>
+          {[["plan", "Plan Safari"], ["destinations", "Destinations"], ["animals", "Animals"], ["guides", "Guides"]].map(([t, label]) => (
+            <span key={t} data-testid={`menu-item-${t}`} onClick={() => { nav(t); setMobileMenuOpen(false); }}
+              style={{ cursor: "pointer", color: tab === t ? G : TEXT, fontFamily: FONT, fontSize: "1rem", padding: "1rem 2rem", borderBottom: `1px solid ${BORDER}`, transition: "color 0.2s", background: tab === t ? "rgba(212,168,67,0.08)" : "transparent" }}>
+              {label}
+            </span>
+          ))}
+          <span data-testid="menu-item-operators" onClick={() => { setMobileMenuOpen(false); window.location.href = "/operator"; }}
+            style={{ cursor: "pointer", color: TEXT, fontFamily: FONT, fontSize: "1rem", padding: "1rem 2rem", transition: "color 0.2s" }}>
+            Operators
+          </span>
+        </div>
+      )}
 
       {/* ── PLAN TAB ── */}
       {tab === "plan" && (

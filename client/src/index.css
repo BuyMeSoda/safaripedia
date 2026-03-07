@@ -131,14 +131,14 @@ h1, h2, h3, h4, h5, h6 {
     padding: 0.8rem 1rem !important;
   }
   .r-nav-tabs {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    gap: 0.8rem !important;
-    font-size: 0.72rem !important;
-    width: 100% !important;
-    justify-content: flex-start !important;
+    display: none !important;
   }
-  .r-nav-tabs::-webkit-scrollbar { display: none; }
+  .r-hamburger {
+    display: block !important;
+  }
+  .r-mobile-menu {
+    display: flex !important;
+  }
   .r-section {
     padding: 1.5rem 1rem !important;
   }
