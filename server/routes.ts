@@ -314,6 +314,37 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     } catch (err) { res.status(500).json({ message: "Failed" }); }
   });
 
+  // ── Admin: all operators ──
+  app.get("/api/operators", async (req, res) => {
+    try {
+      const operators = [...operatorRegistry.entries()].map(([operatorId, op]) => {
+        const leads = op.leads || [];
+        const bookedLeads = leads.filter((l: any) => l.status === "booked");
+        const totalBookingValue = bookedLeads.reduce((s: number, l: any) => s + parseFloat(l.bookingValue || 0), 0);
+        return {
+          operatorId,
+          verificationStatus: op.verificationStatus || "none",
+          profile: op.profile || {},
+          supplierCount: (op.suppliers || []).length,
+          templateCount: (op.templates || []).length,
+          leadCount: leads.length,
+          newLeads: leads.filter((l: any) => l.status === "new").length,
+          contactedLeads: leads.filter((l: any) => l.status === "contacted").length,
+          bookedLeads: bookedLeads.length,
+          lostLeads: leads.filter((l: any) => l.status === "lost").length,
+          totalBookingValue,
+          totalFees: totalBookingValue * 0.1,
+          suppliers: op.suppliers || [],
+          templates: op.templates || [],
+          updatedAt: op.updatedAt || null,
+        };
+      });
+      res.status(200).json({ operators });
+    } catch (err) {
+      res.status(500).json({ message: "Failed to fetch operators" });
+    }
+  });
+
   // ── Analytics ──
   app.get("/api/analytics", async (req, res) => {
     try {

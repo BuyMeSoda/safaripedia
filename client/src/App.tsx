@@ -397,6 +397,9 @@ export default function Safaripedia() {
   const [sharedTripError, setSharedTripError] = useState(null);
   const [adminData, setAdminData] = useState(null);
   const [adminLoading, setAdminLoading] = useState(false);
+  const [adminTab, setAdminTab] = useState<"analytics"|"operators">("analytics");
+  const [adminOperators, setAdminOperators] = useState<any[]>([]);
+  const [expandedOperator, setExpandedOperator] = useState<string|null>(null);
   const [adminAuthed, setAdminAuthed] = useState(() => sessionStorage.getItem("admin_auth") === "true");
   const [adminPwInput, setAdminPwInput] = useState("");
   const [adminPwError, setAdminPwError] = useState(false);
@@ -470,7 +473,7 @@ export default function Safaripedia() {
     }
   }, [operatorId]);
 
-  function nav(t) { setTab(t); setDest(null); setGuide(null); setAnimal(null); }
+  function nav(t) { setTab(t); setDest(null); setGuide(null); setAnimal(null); setMobileMenuOpen(false); }
 
   async function generate() {
     if (!prompt.trim()) return;
@@ -656,7 +659,7 @@ Safari request: ${prompt}`
         <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0, backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E\")", opacity: 0.4 }} />
 
         {/* Admin Nav */}
-        <nav className="r-nav-main" style={{ position: "relative", zIndex: 10, borderBottom: `1px solid ${BORDER}`, padding: "1.2rem 2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <nav style={{ position: "relative", zIndex: 10, borderBottom: `1px solid ${BORDER}`, padding: "1.2rem 2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.8rem" }}>
             <span style={{ fontSize: "1.5rem" }}>🦁</span>
             <span style={{ fontStyle: "italic", fontSize: "1.3rem", color: G }}>Safaripedia</span>
@@ -668,16 +671,31 @@ Safari request: ${prompt}`
           </div>
         </nav>
 
-        <div className="r-section" style={{ position: "relative", zIndex: 1, maxWidth: "1100px", margin: "0 auto", padding: "3rem 2rem 6rem" }}>
+        <div style={{ position: "relative", zIndex: 1, maxWidth: "1100px", margin: "0 auto", padding: "3rem 2rem 6rem" }}>
 
-          {/* Header */}
+          {/* Header + Tab Bar */}
           <div style={{ marginBottom: "2.5rem" }}>
-            <h1 className="r-heading-lg" style={{ fontStyle: "italic", fontSize: "2rem", color: TEXT, fontWeight: "normal", marginBottom: "0.4rem" }}>Analytics Dashboard</h1>
-            <p style={{ color: MUTED, fontSize: "0.88rem" }}>Real-time safari demand data from every itinerary generated.</p>
+            <h1 style={{ fontStyle: "italic", fontSize: "2rem", color: TEXT, fontWeight: "normal", marginBottom: "0.4rem" }}>Admin Dashboard</h1>
+            <p style={{ color: MUTED, fontSize: "0.88rem", marginBottom: "1.5rem" }}>Real-time data across the full Safaripedia marketplace.</p>
+            <div style={{ display: "flex", gap: "0.5rem", borderBottom: `1px solid ${BORDER}`, paddingBottom: "0" }}>
+              {([["analytics","📊 Analytics"],["operators","🏕️ Operators"]] as const).map(([t, label]) => (
+                <button key={t} onClick={() => {
+                  setAdminTab(t);
+                  if (t === "operators") {
+                    fetch("/api/operators").then(r => r.json()).then(d => setAdminOperators(d.operators || []));
+                  }
+                }} style={{ background: "none", border: "none", borderBottom: `2px solid ${adminTab === t ? G : "transparent"}`, color: adminTab === t ? G : MUTED, padding: "0.6rem 1.2rem", fontSize: "0.82rem", fontFamily: FONT, letterSpacing: "0.08em", cursor: "pointer", marginBottom: "-1px" }}>
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
 
+          {/* ── ANALYTICS TAB ── */}
+          {adminTab === "analytics" && (<>
+
           {/* Top stat cards */}
-          <div className="r-grid-6" style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "1rem", marginBottom: "1rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "1rem", marginBottom: "1rem" }}>
             <StatCard emoji="✈️" label="Total Trips" value={d.totalTrips ?? 0} />
             <StatCard emoji="🎯" label="Total Leads" value={d.totalLeads ?? 0} />
             <StatCard emoji="📈" label="Conversion" value={d.conversionRate ?? "0%"} sub="itinerary → lead" />
@@ -686,7 +704,7 @@ Safari request: ${prompt}`
             <StatCard emoji="🌍" label="Top Destination" value={destEntries[0] ? destEntries[0][0] : "—"} sub={destEntries[0] ? `${destEntries[0][1]} trips` : ""} />
           </div>
           {/* Marketplace metrics */}
-          <div className="r-grid-6" style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "1rem", marginBottom: "2rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "1rem", marginBottom: "2rem" }}>
             <StatCard emoji="🏕️" label="Operators" value={d.approvedOperators ?? 0} sub={`${d.pendingApplications ?? 0} pending`} />
             <StatCard emoji="✅" label="Matched Leads" value={d.matchedLeads ?? 0} sub={`${d.unmatchedLeads ?? 0} unmatched`} />
             <StatCard emoji="🎉" label="Booked" value={d.bookedLeads ?? 0} sub="confirmed" />
@@ -696,7 +714,7 @@ Safari request: ${prompt}`
           </div>
 
           {/* Charts row */}
-          <div className="r-chart-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "1.5rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "1.5rem" }}>
 
             {/* Destinations */}
             <div style={{ background: "rgba(255,255,255,0.025)", border: `1px solid ${BORDER}`, borderRadius: "12px", padding: "1.5rem" }}>
@@ -712,7 +730,7 @@ Safari request: ${prompt}`
 
           </div>
 
-          <div className="r-chart-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "1.5rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "1.5rem" }}>
 
             {/* Budget tiers */}
             <div style={{ background: "rgba(255,255,255,0.025)", border: `1px solid ${BORDER}`, borderRadius: "12px", padding: "1.5rem" }}>
@@ -779,7 +797,7 @@ Safari request: ${prompt}`
           </div>
 
           {/* Group size + Duration row */}
-          <div className="r-chart-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "1.5rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "1.5rem" }}>
             <div style={{ background: "rgba(255,255,255,0.025)", border: `1px solid ${BORDER}`, borderRadius: "12px", padding: "1.5rem" }}>
               <h3 style={{ fontStyle: "italic", color: G, fontSize: "1rem", fontWeight: "normal", marginBottom: "1.2rem" }}>👥 Group Sizes</h3>
               <BarChart entries={Object.entries(d.groupSizes || {}).sort((a: any, b: any) => b[1] - a[1])} max={Math.max(...Object.values(d.groupSizes || {1: 1}).map((v: any) => v), 1)} color="#c084fc" />
@@ -873,6 +891,172 @@ Safari request: ${prompt}`
             </button>
           </div>
 
+          </>)} {/* end analytics tab */}
+
+          {/* ── OPERATORS TAB ── */}
+          {adminTab === "operators" && (
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+                <p style={{ color: MUTED, fontSize: "0.85rem" }}>{adminOperators.length} operator{adminOperators.length !== 1 ? "s" : ""} registered · {adminOperators.filter(o => o.verificationStatus === "approved").length} approved</p>
+                <button onClick={() => fetch("/api/operators").then(r=>r.json()).then(d=>setAdminOperators(d.operators||[]))}
+                  style={{ background: "transparent", border: `1px solid ${BORDER}`, color: MUTED, borderRadius: "8px", padding: "0.4rem 1rem", fontSize: "0.78rem", fontFamily: FONT, cursor: "pointer" }}>↻ Refresh</button>
+              </div>
+
+              {adminOperators.length === 0 && (
+                <div style={{ textAlign: "center", padding: "4rem", color: MUTED, fontStyle: "italic" }}>No operators registered yet</div>
+              )}
+
+              <div style={{ display: "flex", flexDirection: "column" as const, gap: "1rem" }}>
+                {adminOperators.map((op: any) => {
+                  const isExpanded = expandedOperator === op.operatorId;
+                  const statusColor = op.verificationStatus === "approved" ? "#86efac" : op.verificationStatus === "pending" ? "#f59e0b" : op.verificationStatus === "rejected" ? "#f87171" : MUTED;
+                  return (
+                    <div key={op.operatorId} style={{ background: "rgba(255,255,255,0.025)", border: `1px solid ${isExpanded ? BORDER2 : BORDER}`, borderRadius: "12px", overflow: "hidden" }}>
+
+                      {/* Operator summary row */}
+                      <div onClick={() => setExpandedOperator(isExpanded ? null : op.operatorId)}
+                        style={{ padding: "1.2rem 1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", gap: "1rem" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "rgba(212,168,67,0.03)"}
+                        onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "1.2rem", flex: 1, minWidth: 0 }}>
+                          <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "rgba(212,168,67,0.1)", border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem", flexShrink: 0 }}>🏕️</div>
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.7rem", marginBottom: "0.2rem", flexWrap: "wrap" as const }}>
+                              <span style={{ color: TEXT, fontWeight: "bold", fontSize: "0.95rem" }}>{op.profile?.companyName || "Unnamed Operator"}</span>
+                              <span style={{ fontSize: "0.65rem", letterSpacing: "0.1em", textTransform: "uppercase" as const, color: statusColor, background: "rgba(212,168,67,0.06)", border: `1px solid ${statusColor}40`, borderRadius: "20px", padding: "0.15rem 0.6rem" }}>{op.verificationStatus}</span>
+                            </div>
+                            <div style={{ fontSize: "0.78rem", color: MUTED }}>
+                              {op.profile?.email && <a href={`mailto:${op.profile.email}`} style={{ color: G, textDecoration: "none", marginRight: "0.8rem" }}>{op.profile.email}</a>}
+                              {op.profile?.countries && <span>{op.profile.countries}</span>}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Quick stats */}
+                        <div style={{ display: "flex", gap: "1.5rem", flexShrink: 0 }}>
+                          {[
+                            ["Suppliers", op.supplierCount],
+                            ["Leads", op.leadCount],
+                            ["Booked", op.bookedLeads],
+                            ["Revenue", op.totalBookingValue ? `$${Math.round(op.totalBookingValue).toLocaleString()}` : "—"],
+                            ["Fees", op.totalFees ? `$${Math.round(op.totalFees).toLocaleString()}` : "—"],
+                          ].map(([label, val]) => (
+                            <div key={label as string} style={{ textAlign: "center" as const }}>
+                              <div style={{ fontSize: "1rem", color: G, fontWeight: "bold" }}>{val}</div>
+                              <div style={{ fontSize: "0.65rem", color: MUTED, letterSpacing: "0.08em", textTransform: "uppercase" as const }}>{label}</div>
+                            </div>
+                          ))}
+                        </div>
+                        <span style={{ color: MUTED, fontSize: "0.85rem", flexShrink: 0 }}>{isExpanded ? "▲" : "▼"}</span>
+                      </div>
+
+                      {/* Expanded detail */}
+                      {isExpanded && (
+                        <div style={{ borderTop: `1px solid ${BORDER}`, padding: "1.5rem" }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1.5rem", marginBottom: "1.5rem" }}>
+
+                            {/* Profile */}
+                            <div>
+                              <div style={{ fontSize: "0.65rem", letterSpacing: "0.15em", textTransform: "uppercase" as const, color: G, marginBottom: "0.8rem" }}>Profile</div>
+                              {[
+                                ["Company", op.profile?.companyName],
+                                ["Contact", op.profile?.contactName],
+                                ["Email", op.profile?.email],
+                                ["Phone", op.profile?.phone],
+                                ["Website", op.profile?.website],
+                                ["Countries", op.profile?.countries],
+                                ["Currency", op.profile?.currency],
+                                ["Vehicle", op.profile?.vehicle],
+                                ["Last Updated", op.updatedAt ? new Date(op.updatedAt).toLocaleDateString() : null],
+                              ].filter(([,v]) => v).map(([k, v]) => (
+                                <div key={k as string} style={{ display: "flex", gap: "0.5rem", marginBottom: "0.4rem" }}>
+                                  <span style={{ fontSize: "0.75rem", color: MUTED, width: "80px", flexShrink: 0 }}>{k}</span>
+                                  <span style={{ fontSize: "0.75rem", color: TEXT }}>{v}</span>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Suppliers */}
+                            <div>
+                              <div style={{ fontSize: "0.65rem", letterSpacing: "0.15em", textTransform: "uppercase" as const, color: G, marginBottom: "0.8rem" }}>Suppliers ({op.supplierCount})</div>
+                              {op.suppliers.length === 0 && <p style={{ color: MUTED, fontSize: "0.78rem", fontStyle: "italic" }}>None added yet</p>}
+                              <div style={{ display: "flex", flexDirection: "column" as const, gap: "0.3rem", maxHeight: "200px", overflowY: "auto" as const }}>
+                                {op.suppliers.map((s: any, i: number) => (
+                                  <div key={i} style={{ fontSize: "0.75rem", padding: "0.3rem 0.5rem", background: "rgba(0,0,0,0.2)", borderRadius: "4px", display: "flex", justifyContent: "space-between" }}>
+                                    <span style={{ color: TEXT }}>{s.name}</span>
+                                    <span style={{ color: MUTED, textTransform: "capitalize" as const }}>{s.type}{s.tier ? ` · ${s.tier}` : ""}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Lead pipeline */}
+                            <div>
+                              <div style={{ fontSize: "0.65rem", letterSpacing: "0.15em", textTransform: "uppercase" as const, color: G, marginBottom: "0.8rem" }}>Lead Pipeline</div>
+                              {[
+                                ["New", op.newLeads, "#93c5fd"],
+                                ["Contacted", op.contactedLeads, "#f59e0b"],
+                                ["Booked", op.bookedLeads, "#86efac"],
+                                ["Lost", op.lostLeads, "#f87171"],
+                                ["Total", op.leadCount, G],
+                              ].map(([label, val, color]) => (
+                                <div key={label as string} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                                  <span style={{ fontSize: "0.78rem", color: MUTED }}>{label}</span>
+                                  <span style={{ fontSize: "0.9rem", fontWeight: "bold", color: color as string }}>{val}</span>
+                                </div>
+                              ))}
+                              <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "0.5rem", marginTop: "0.5rem" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                  <span style={{ fontSize: "0.75rem", color: MUTED }}>Booking value</span>
+                                  <span style={{ fontSize: "0.85rem", color: G, fontWeight: "bold" }}>{op.totalBookingValue ? `$${Math.round(op.totalBookingValue).toLocaleString()}` : "—"}</span>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.3rem" }}>
+                                  <span style={{ fontSize: "0.75rem", color: MUTED }}>Your 10% fee</span>
+                                  <span style={{ fontSize: "0.85rem", color: "#86efac", fontWeight: "bold" }}>{op.totalFees ? `$${Math.round(op.totalFees).toLocaleString()}` : "—"}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Templates */}
+                          {op.templates.length > 0 && (
+                            <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "1rem" }}>
+                              <div style={{ fontSize: "0.65rem", letterSpacing: "0.15em", textTransform: "uppercase" as const, color: G, marginBottom: "0.6rem" }}>Itinerary Templates ({op.templateCount})</div>
+                              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" as const }}>
+                                {op.templates.map((t: any, i: number) => (
+                                  <span key={i} style={{ fontSize: "0.75rem", padding: "0.25rem 0.7rem", background: "rgba(212,168,67,0.08)", border: `1px solid ${BORDER}`, borderRadius: "20px", color: MUTED }}>{t.name || `Template ${i+1}`}</span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Actions */}
+                          <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "1rem", marginTop: "1rem", display: "flex", gap: "0.6rem" }}>
+                            {op.profile?.email && (
+                              <a href={`mailto:${op.profile.email}`} style={{ background: "rgba(212,168,67,0.1)", border: `1px solid ${BORDER}`, color: G, borderRadius: "6px", padding: "0.4rem 1rem", fontSize: "0.78rem", fontFamily: FONT, textDecoration: "none" }}>✉ Email Operator</a>
+                            )}
+                            {op.verificationStatus === "approved" && (
+                              <button onClick={async () => {
+                                await fetch(`/api/operator/applications/${op.operatorId}/decision`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ decision: "rejected" }) });
+                                fetch("/api/operators").then(r=>r.json()).then(d=>setAdminOperators(d.operators||[]));
+                              }} style={{ background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.3)", color: "#f87171", borderRadius: "6px", padding: "0.4rem 1rem", fontSize: "0.78rem", fontFamily: FONT, cursor: "pointer" }}>Revoke Access</button>
+                            )}
+                            {op.verificationStatus !== "approved" && (
+                              <button onClick={async () => {
+                                await fetch(`/api/operator/applications/${op.operatorId}/decision`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ decision: "approved" }) });
+                                fetch("/api/operators").then(r=>r.json()).then(d=>setAdminOperators(d.operators||[]));
+                              }} style={{ background: "rgba(134,239,172,0.08)", border: "1px solid rgba(134,239,172,0.3)", color: "#86efac", borderRadius: "6px", padding: "0.4rem 1rem", fontSize: "0.78rem", fontFamily: FONT, cursor: "pointer" }}>✓ Approve</button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     );
@@ -919,7 +1103,7 @@ Safari request: ${prompt}`
                 <a href="mailto:hello@safaripedia.com" style={{ color: G, fontSize: "0.82rem", textDecoration: "none" }}>Contact us to get operator access →</a>
               </div>
             </div>
-            <div className="r-grid-3" style={{ marginTop: "1.5rem", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.8rem", textAlign: "center" }}>
+            <div style={{ marginTop: "1.5rem", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.8rem", textAlign: "center" }}>
               {[["⚡", "30 seconds", "per proposal"], ["🏕️", "Your lodges", "only"], ["📄", "PDF ready", "to send"]].map(([icon, title, sub]) => (
                 <div key={title} style={{ background: "rgba(255,255,255,0.02)", border: `1px solid ${BORDER}`, borderRadius: "10px", padding: "1rem 0.5rem" }}>
                   <div style={{ fontSize: "1.3rem", marginBottom: "0.3rem" }}>{icon}</div>
@@ -1137,7 +1321,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
       } catch { /* silent */ }
     }
 
-    // ── FETCH verification status on load (moved to top-level useEffect) ──
+    // ── verification status fetched by top-level useEffect ──
 
     // ── SUBMIT application ──
     async function submitApplication() {
@@ -1255,11 +1439,11 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
           </div>
         )}
 
-        <div className="r-section" style={{ position: "relative", zIndex: 1, maxWidth: "1200px", margin: "0 auto", padding: "2rem 2rem 6rem" }}>
+        <div style={{ position: "relative", zIndex: 1, maxWidth: "1200px", margin: "0 auto", padding: "2rem 2rem 6rem" }}>
 
           {/* ── QUOTE GENERATOR TAB ── */}
           {opTab === "quote" && (
-            <div className="r-grid-quote" style={{ display: "grid", gridTemplateColumns: "400px 1fr", gap: "2rem", alignItems: "start" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "400px 1fr", gap: "2rem", alignItems: "start" }}>
               {/* Form */}
               <div>
                 <div style={{ marginBottom: "1.5rem" }}>
@@ -1275,12 +1459,12 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
                     <label style={labelStyle}>Client Name</label>
                     <input value={operatorForm.client} onChange={e => setOperatorForm(f => ({ ...f, client: e.target.value }))} placeholder="e.g. The Johnson Family" style={fieldStyle} />
                   </div>
-                  <div className="r-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
                     <div><label style={labelStyle}>Trip Length (days)</label><input value={operatorForm.days} onChange={e => setOperatorForm(f => ({ ...f, days: e.target.value }))} placeholder="7" style={fieldStyle} /></div>
                     <div><label style={labelStyle}>Group Size</label><input value={operatorForm.groupSize} onChange={e => setOperatorForm(f => ({ ...f, groupSize: e.target.value }))} placeholder="2" style={fieldStyle} /></div>
                   </div>
                   <div><label style={labelStyle}>Destination</label><input value={operatorForm.destination} onChange={e => setOperatorForm(f => ({ ...f, destination: e.target.value }))} placeholder="e.g. Kenya — Maasai Mara, Amboseli" style={fieldStyle} /></div>
-                  <div className="r-grid-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.8rem" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.8rem" }}>
                     <div><label style={labelStyle}>Budget p.p.</label><input value={operatorForm.budget} onChange={e => setOperatorForm(f => ({ ...f, budget: e.target.value }))} placeholder="4,000" style={fieldStyle} /></div>
                     <div>
                       <label style={labelStyle}>Currency</label>
@@ -1400,7 +1584,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
           {/* ── LEADS TAB ── */}
           {opTab === "leads" && (
             <div>
-              <div className="r-flex-stack" style={{ marginBottom: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: "0.8rem" }}>
+              <div style={{ marginBottom: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                 <div>
                   <h1 style={{ fontStyle: "italic", fontSize: "1.6rem", color: TEXT, fontWeight: "normal", marginBottom: "0.3rem" }}>Matched Inquiries</h1>
                   <p style={{ color: MUTED, fontSize: "0.82rem" }}>Travellers matched to you based on your destinations and lodge portfolio.</p>
@@ -1409,7 +1593,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
               </div>
 
               {/* Stats row */}
-              <div className="r-grid-4" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", marginBottom: "2rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", marginBottom: "2rem" }}>
                 {[
                   ["📬", "New", opLeads.filter(l=>l.status==="new").length, G],
                   ["💬", "Contacted", opLeads.filter(l=>l.status==="contacted").length, MUTED],
@@ -1440,9 +1624,9 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
                 const feeEst = lead.bookingValue ? `$${(parseFloat(lead.bookingValue) * 0.1).toLocaleString()}` : "—";
                 return (
                   <div key={lead.id} style={{ background: "rgba(255,255,255,0.025)", border: `1px solid ${lead.status === "new" ? "rgba(212,168,67,0.4)" : BORDER}`, borderRadius: "12px", padding: "1.5rem", marginBottom: "1rem" }}>
-                    <div className="r-lead-card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
                       <div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.8rem", marginBottom: "0.3rem", flexWrap: "wrap" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.8rem", marginBottom: "0.3rem" }}>
                           <span style={{ fontSize: "1rem", color: TEXT, fontWeight: "bold" }}>{lead.name}</span>
                           <span style={{ fontSize: "0.65rem", letterSpacing: "0.1em", textTransform: "uppercase" as const, color: statusColors[lead.status] || MUTED, background: "rgba(212,168,67,0.08)", border: `1px solid rgba(212,168,67,0.2)`, borderRadius: "20px", padding: "0.15rem 0.6rem" }}>{lead.status}</span>
                           {lead.status === "new" && <span style={{ fontSize: "0.65rem", color: G, fontStyle: "italic" }}>● New</span>}
@@ -1454,7 +1638,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
                       </div>
                     </div>
 
-                    <div className="r-grid-4" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.8rem", marginBottom: "1rem" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "0.8rem", marginBottom: "1rem" }}>
                       {[
                         ["📍 Destination", lead.destination || lead.destinationsStr || "—"],
                         ["📅 Dates", lead.dates || "—"],
@@ -1491,7 +1675,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
                       </div>
                     )}
 
-                    <div className="r-lead-actions" style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
+                    <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
                       <a href={`mailto:${lead.email}?subject=Re: Your Safari Inquiry`}
                         style={{ background: G, color: BG, borderRadius: "6px", padding: "0.4rem 1rem", fontSize: "0.78rem", fontFamily: FONT, fontWeight: "bold", textDecoration: "none" }}>
                         ✉ Reply to Traveller
@@ -1522,7 +1706,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
               {/* Booking value modal */}
               {bookingModal && (
                 <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <div className="r-modal-content" style={{ background: "#1a1a0d", border: `1px solid ${BORDER}`, borderRadius: "14px", padding: "2rem", width: "360px", fontFamily: FONT }}>
+                  <div style={{ background: "#1a1a0d", border: `1px solid ${BORDER}`, borderRadius: "14px", padding: "2rem", width: "360px", fontFamily: FONT }}>
                     <h3 style={{ color: G, fontStyle: "italic", fontWeight: "normal", marginBottom: "1rem" }}>🎉 Mark as Booked</h3>
                     <p style={{ color: MUTED, fontSize: "0.85rem", marginBottom: "1.2rem" }}>Enter the total booking value so we can calculate the Safaripedia success fee (10%).</p>
                     <label style={{ display: "block", fontSize: "0.68rem", letterSpacing: "0.12em", textTransform: "uppercase" as const, color: MUTED, marginBottom: "0.4rem" }}>Booking Value (USD)</label>
@@ -1548,7 +1732,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
           {/* ── SUPPLIERS TAB ── */}
           {opTab === "suppliers" && (
             <div>
-              <div className="r-flex-stack" style={{ marginBottom: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: "0.8rem" }}>
+              <div style={{ marginBottom: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                 <div>
                   <h1 style={{ fontStyle: "italic", fontSize: "1.6rem", color: TEXT, fontWeight: "normal", marginBottom: "0.3rem" }}>Supplier Database</h1>
                   <p style={{ color: MUTED, fontSize: "0.82rem" }}>AI will only use lodges, parks and suppliers from this list when generating proposals.</p>
@@ -1558,7 +1742,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
               {/* Add supplier form */}
               <div style={{ background: "rgba(255,255,255,0.025)", border: `1px solid ${BORDER}`, borderRadius: "12px", padding: "1.5rem", marginBottom: "2rem" }}>
                 <div style={{ fontSize: "0.65rem", letterSpacing: "0.15em", textTransform: "uppercase" as const, color: G, marginBottom: "1rem" }}>Add Supplier</div>
-                <div className="r-grid-supplier-form" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr auto", gap: "0.8rem", alignItems: "end" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr auto", gap: "0.8rem", alignItems: "end" }}>
                   <div>
                     <label style={labelStyle}>Type</label>
                     <select value={newSupplier.type} onChange={e => setNewSupplier(s => ({ ...s, type: e.target.value }))} style={{ ...fieldStyle, cursor: "pointer" }}>
@@ -1617,7 +1801,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
                     <div style={{ fontSize: "0.7rem", letterSpacing: "0.15em", textTransform: "uppercase" as const, color: G, marginBottom: "0.8rem", paddingBottom: "0.4rem", borderBottom: `1px solid ${BORDER}` }}>{typeLabel}</div>
                     <div style={{ display: "grid", gap: "0.5rem" }}>
                       {items.map(s => (
-                        <div key={s.id} className="r-grid-supplier-item" style={{ display: "grid", gridTemplateColumns: type === "lodge" ? "2fr 1.5fr 1fr 1fr auto" : "2fr 2fr auto", gap: "0.8rem", alignItems: "center", background: "rgba(255,255,255,0.025)", border: `1px solid ${BORDER}`, borderRadius: "8px", padding: "0.7rem 1rem" }}>
+                        <div key={s.id} style={{ display: "grid", gridTemplateColumns: type === "lodge" ? "2fr 1.5fr 1fr 1fr auto" : "2fr 2fr auto", gap: "0.8rem", alignItems: "center", background: "rgba(255,255,255,0.025)", border: `1px solid ${BORDER}`, borderRadius: "8px", padding: "0.7rem 1rem" }}>
                           <span style={{ color: TEXT, fontSize: "0.88rem", fontWeight: "bold" }}>{s.name}</span>
                           {type === "lodge" ? (
                             <>
@@ -1658,7 +1842,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
               {/* Add template */}
               <div style={{ background: "rgba(255,255,255,0.025)", border: `1px solid ${BORDER}`, borderRadius: "12px", padding: "1.5rem", marginBottom: "2rem" }}>
                 <div style={{ fontSize: "0.65rem", letterSpacing: "0.15em", textTransform: "uppercase" as const, color: G, marginBottom: "1rem" }}>New Template</div>
-                <div className="r-template-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "0.8rem", marginBottom: "1rem" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "0.8rem", marginBottom: "1rem" }}>
                   <div><label style={labelStyle}>Template Name *</label><input value={newTemplate.name} onChange={e => setNewTemplate(t => ({ ...t, name: e.target.value }))} placeholder="7 Day Kenya Classic" style={fieldStyle} /></div>
                   <div><label style={labelStyle}>Days *</label><input value={newTemplate.days} onChange={e => { setNewTemplate(t => ({ ...t, days: e.target.value, route: Array(parseInt(e.target.value)||7).fill("") })); }} placeholder="7" type="number" style={fieldStyle} /></div>
                   <div><label style={labelStyle}>Primary Destination</label><input value={newTemplate.destination} onChange={e => setNewTemplate(t => ({ ...t, destination: e.target.value }))} placeholder="Kenya" style={fieldStyle} /></div>
@@ -1725,14 +1909,14 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
               <div style={{ background: "rgba(255,255,255,0.025)", border: `1px solid ${BORDER}`, borderRadius: "12px", padding: "1.5rem", display: "flex", flexDirection: "column" as const, gap: "1rem" }}>
                 {sectionLabel("Company Details")}
                 <div><label style={labelStyle}>Company Name</label><input value={opProfile.companyName} onChange={e => setOpProfile(p => ({ ...p, companyName: e.target.value }))} placeholder="Acacia Safari Co." style={fieldStyle} /></div>
-                <div className="r-profile-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
                   <div><label style={labelStyle}>Email</label><input value={opProfile.email} onChange={e => setOpProfile(p => ({ ...p, email: e.target.value }))} placeholder="info@acacia.com" style={fieldStyle} /></div>
                   <div><label style={labelStyle}>Phone</label><input value={opProfile.phone} onChange={e => setOpProfile(p => ({ ...p, phone: e.target.value }))} placeholder="+254 700 000000" style={fieldStyle} /></div>
                 </div>
                 <div><label style={labelStyle}>Website</label><input value={opProfile.website} onChange={e => setOpProfile(p => ({ ...p, website: e.target.value }))} placeholder="www.acaciasafaris.com" style={fieldStyle} /></div>
                 {sectionLabel("Operational Preferences")}
                 <div><label style={labelStyle}>Primary Countries</label><input value={opProfile.countries} onChange={e => setOpProfile(p => ({ ...p, countries: e.target.value }))} placeholder="Kenya, Tanzania, Botswana" style={fieldStyle} /></div>
-                <div className="r-profile-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
                   <div>
                     <label style={labelStyle}>Default Currency</label>
                     <select value={opProfile.currency || "USD"} onChange={e => setOpProfile(p => ({ ...p, currency: e.target.value }))} style={{ ...fieldStyle, cursor: "pointer" }}>
@@ -1783,7 +1967,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
                 {(opVerificationStatus === "none") && !opApplicationSubmitted && (
                   <div style={{ background: "rgba(255,255,255,0.025)", border: `1px solid ${BORDER}`, borderRadius: "12px", padding: "1.5rem", display: "flex", flexDirection: "column" as const, gap: "0.9rem" }}>
                     <div style={{ fontSize: "0.65rem", letterSpacing: "0.15em", textTransform: "uppercase" as const, color: G, marginBottom: "0.4rem" }}>Apply for Lead Access</div>
-                    <div className="r-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
                       <div>
                         <label style={labelStyle}>Company Name *</label>
                         <input value={opApplication.companyName} onChange={e => setOpApplication(a => ({ ...a, companyName: e.target.value }))} placeholder="Acacia Safaris Ltd" style={fieldStyle} />
@@ -1793,7 +1977,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
                         <input value={opApplication.contactName} onChange={e => setOpApplication(a => ({ ...a, contactName: e.target.value }))} placeholder="James Odhiambo" style={fieldStyle} />
                       </div>
                     </div>
-                    <div className="r-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
                       <div>
                         <label style={labelStyle}>Business Email *</label>
                         <input value={opApplication.email} onChange={e => setOpApplication(a => ({ ...a, email: e.target.value }))} placeholder="james@acacia.com" style={fieldStyle} />
@@ -1811,7 +1995,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
                       <label style={labelStyle}>Countries You Operate In *</label>
                       <input value={opApplication.countries} onChange={e => setOpApplication(a => ({ ...a, countries: e.target.value }))} placeholder="Kenya, Tanzania, Botswana" style={fieldStyle} />
                     </div>
-                    <div className="r-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
                       <div>
                         <label style={labelStyle}>Years in Business</label>
                         <input value={opApplication.yearsInBusiness} onChange={e => setOpApplication(a => ({ ...a, yearsInBusiness: e.target.value }))} placeholder="5" style={fieldStyle} />
@@ -1878,7 +2062,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
             Plan My Own Safari →
           </button>
         </nav>
-        <div className="r-section" style={{ position: "relative", zIndex: 1, maxWidth: "800px", margin: "0 auto", padding: "3rem 2rem 6rem" }}>
+        <div style={{ position: "relative", zIndex: 1, maxWidth: "800px", margin: "0 auto", padding: "3rem 2rem 6rem" }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", background: "rgba(212,168,67,0.08)", border: "1px solid rgba(212,168,67,0.2)", borderRadius: "20px", padding: "0.3rem 1rem", fontSize: "0.72rem", letterSpacing: "0.12em", textTransform: "uppercase", color: G, marginBottom: "1.5rem" }}>
             🔗 Shared Safari Plan
           </div>
@@ -2022,9 +2206,9 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
       {/* ── PLAN TAB ── */}
       {tab === "plan" && (
         <>
-          <div className="r-section-hero" style={{ position: "relative", zIndex: 1, padding: "5rem 2rem 4rem", textAlign: "center", maxWidth: "760px", margin: "0 auto" }}>
+          <div style={{ position: "relative", zIndex: 1, padding: "5rem 2rem 4rem", textAlign: "center", maxWidth: "760px", margin: "0 auto" }}>
             <div style={{ fontSize: "0.7rem", letterSpacing: "0.25em", textTransform: "uppercase", color: G, marginBottom: "1.5rem", opacity: 0.8 }}>✦ AI-Powered Safari Planning ✦</div>
-            <h1 className="r-heading-xl" style={{ fontStyle: "italic", fontSize: "clamp(2.4rem,6vw,4rem)", lineHeight: 1.15, color: TEXT, marginBottom: "1.2rem", fontWeight: "normal" }}>
+            <h1 style={{ fontStyle: "italic", fontSize: "clamp(2.4rem,6vw,4rem)", lineHeight: 1.15, color: TEXT, marginBottom: "1.2rem", fontWeight: "normal" }}>
               Plan Your African Safari<br /><span style={{ color: G }}>in Seconds</span>
             </h1>
             <p style={{ color: MUTED, fontSize: "1rem", lineHeight: 1.7, maxWidth: "480px", margin: "0 auto 2.5rem" }}>
@@ -2244,7 +2428,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
                     </p>
 
                     {/* URL box */}
-                    <div className="r-share-url" style={{ display: "flex", gap: "0.6rem", marginBottom: "1.2rem" }}>
+                    <div style={{ display: "flex", gap: "0.6rem", marginBottom: "1.2rem" }}>
                       <div style={{ flex: 1, background: "rgba(0,0,0,0.2)", border: `1px solid ${BORDER}`, borderRadius: "8px", padding: "0.65rem 1rem", fontSize: "0.8rem", color: MUTED, fontFamily: "monospace", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {window.location.origin}/trip/{shareId}
                       </div>
@@ -2288,7 +2472,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
                 {showLead && !leadDone && (
                   <div style={{ background: "rgba(212,168,67,0.05)", border: "1px solid rgba(212,168,67,0.2)", borderRadius: "14px", padding: "2rem", marginTop: "2rem" }}>
                     {/* Step indicator */}
-                    <div className="r-step-indicator" style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.8rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.8rem" }}>
                       {[["1","Contact"],["2","Your Trip"],["3","Travel Style"]].map(([n, label], i) => (
                         <div key={n} style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
                           <div style={{ width: "24px", height: "24px", borderRadius: "50%", background: leadStep > parseInt(n) ? G : leadStep === parseInt(n) ? G : "rgba(255,255,255,0.08)", border: `1px solid ${leadStep >= parseInt(n) ? G : "rgba(212,168,67,0.2)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", color: leadStep >= parseInt(n) ? BG : MUTED, fontWeight: "bold", flexShrink: 0 }}>{leadStep > parseInt(n) ? "✓" : n}</div>
@@ -2302,7 +2486,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
                     {leadStep === 1 && (
                       <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                         <h3 style={{ fontStyle: "italic", fontSize: "1.2rem", color: G, fontWeight: "normal", margin: 0 }}>Who are we quoting for?</h3>
-                        <div className="r-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
                           {[["name","Your Name","Jane Smith"],["email","Email Address","jane@example.com"]].map(([k, label, ph]) => (
                             <div key={k}>
                               <label style={{ display: "block", fontSize: "0.68rem", letterSpacing: "0.12em", textTransform: "uppercase", color: MUTED, marginBottom: "0.35rem" }}>{label}</label>
@@ -2311,7 +2495,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
                             </div>
                           ))}
                         </div>
-                        <div className="r-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
                           {[["travelers","Number of Travellers","2 adults"],["budget","Total Budget (USD)","$5,000"]].map(([k, label, ph]) => (
                             <div key={k}>
                               <label style={{ display: "block", fontSize: "0.68rem", letterSpacing: "0.12em", textTransform: "uppercase", color: MUTED, marginBottom: "0.35rem" }}>{label}</label>
@@ -2331,7 +2515,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
                     {leadStep === 2 && (
                       <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
                         <h3 style={{ fontStyle: "italic", fontSize: "1.2rem", color: G, fontWeight: "normal", margin: 0 }}>Tell us about your trip</h3>
-                        <div className="r-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
                           <div>
                             <label style={{ display: "block", fontSize: "0.68rem", letterSpacing: "0.12em", textTransform: "uppercase", color: MUTED, marginBottom: "0.35rem" }}>Travel Dates</label>
                             <input value={lead.dates} onChange={e => setLead(l => ({ ...l, dates: e.target.value }))} placeholder="Aug 10–20, 2025"
@@ -2384,7 +2568,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
 
                         <div>
                           <label style={{ display: "block", fontSize: "0.68rem", letterSpacing: "0.12em", textTransform: "uppercase", color: MUTED, marginBottom: "0.5rem" }}>Accommodation Style</label>
-                          <div className="r-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
                             {[["tented-camp","⛺ Tented Camp","Classic bush intimacy"],["lodge","🏡 Lodge","Comfort & views"],["mixed","🔄 Mix of both","Best of both worlds"],["self-drive","🚗 Self-Drive","Independent adventure"]].map(([v, label, sub]) => (
                               <div key={v} onClick={() => setLeadProfile(p => ({ ...p, accommodation: v }))}
                                 style={{ padding: "0.7rem 0.8rem", borderRadius: "8px", border: `1px solid ${leadProfile.accommodation === v ? G : "rgba(212,168,67,0.2)"}`, background: leadProfile.accommodation === v ? "rgba(212,168,67,0.1)" : "rgba(255,255,255,0.02)", cursor: "pointer" }}>
@@ -2463,12 +2647,12 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
 
       {/* ── DESTINATIONS TAB ── */}
       {tab === "destinations" && (
-        <div className="r-section" style={{ position: "relative", zIndex: 1, maxWidth: "900px", margin: "0 auto", padding: "3rem 2rem 4rem" }}>
+        <div style={{ position: "relative", zIndex: 1, maxWidth: "900px", margin: "0 auto", padding: "3rem 2rem 4rem" }}>
           {!dest ? (
             <>
               <div style={{ textAlign: "center", marginBottom: "3rem" }}>
                 <div style={{ fontSize: "0.7rem", letterSpacing: "0.25em", textTransform: "uppercase", color: G, marginBottom: "1rem" }}>✦ Explore Africa ✦</div>
-                <h1 className="r-heading-xl" style={{ fontStyle: "italic", fontSize: "2.5rem", color: TEXT, fontWeight: "normal", marginBottom: "0.8rem" }}>Safari Destinations</h1>
+                <h1 style={{ fontStyle: "italic", fontSize: "2.5rem", color: TEXT, fontWeight: "normal", marginBottom: "0.8rem" }}>Safari Destinations</h1>
                 <p style={{ color: MUTED, fontSize: "0.95rem" }}>From Kenya's sweeping savannas to Botswana's magical delta.</p>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: "1.2rem" }}>
@@ -2499,7 +2683,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
               <div style={{ background: "rgba(212,168,67,0.06)", border: `1px solid ${BORDER}`, borderRadius: "12px", padding: "1.8rem", marginBottom: "1rem" }}>
                 <p style={{ color: TEXT, fontSize: "0.95rem", lineHeight: 1.75, margin: 0 }}>{dest.overview}</p>
               </div>
-              <div className="r-dest-detail-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
                 <div style={{ background: "rgba(255,255,255,0.025)", border: `1px solid ${BORDER}`, borderRadius: "10px", padding: "1.4rem" }}>
                   <h3 style={{ fontStyle: "italic", color: G, fontSize: "0.95rem", fontWeight: "normal", marginBottom: "0.8rem" }}>Wildlife Highlights</h3>
                   {dest.wildlife.map((a, i) => <div key={i} style={{ color: MUTED, fontSize: "0.82rem", padding: "0.2rem 0", display: "flex", gap: "0.5rem" }}><span style={{ color: G }}>▸</span>{a}</div>)}
@@ -2527,17 +2711,17 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
 
       {/* ── ANIMALS TAB ── */}
       {tab === "animals" && (
-        <div className="r-section" style={{ position: "relative", zIndex: 1, maxWidth: "900px", margin: "0 auto", padding: "3rem 2rem 4rem" }}>
+        <div style={{ position: "relative", zIndex: 1, maxWidth: "900px", margin: "0 auto", padding: "3rem 2rem 4rem" }}>
           {!animal ? (
             <>
               <div style={{ textAlign: "center", marginBottom: "3rem" }}>
                 <div style={{ fontSize: "0.7rem", letterSpacing: "0.25em", textTransform: "uppercase", color: G, marginBottom: "1rem" }}>✦ Wildlife Guides ✦</div>
-                <h1 className="r-heading-xl" style={{ fontStyle: "italic", fontSize: "2.5rem", color: TEXT, fontWeight: "normal", marginBottom: "0.8rem" }}>Safari Animals</h1>
+                <h1 style={{ fontStyle: "italic", fontSize: "2.5rem", color: TEXT, fontWeight: "normal", marginBottom: "0.8rem" }}>Safari Animals</h1>
                 <p style={{ color: MUTED, fontSize: "0.95rem" }}>Find the best parks and seasons for the animals you most want to see.</p>
               </div>
 
               {/* Big Five + Migration featured cards */}
-              <div className="r-animal-featured" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.5rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.5rem" }}>
                 {ANIMALS.filter(a => a.slug === "big-five" || a.slug === "migration").map((a, i) => (
                   <div key={i} onClick={() => setAnimal(a)}
                     style={{ background: "linear-gradient(135deg,rgba(212,168,67,0.1),rgba(212,168,67,0.03))", border: "1px solid rgba(212,168,67,0.3)", borderRadius: "12px", padding: "1.8rem", cursor: "pointer", transition: "border-color 0.2s" }}
@@ -2600,7 +2784,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
               </div>
 
               {/* Best Time + Fun Fact */}
-              <div className="r-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.5rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.5rem" }}>
                 <div style={{ background: "rgba(255,255,255,0.025)", border: `1px solid ${BORDER}`, borderRadius: "10px", padding: "1.4rem" }}>
                   <h3 style={{ fontStyle: "italic", color: G, fontSize: "0.95rem", fontWeight: "normal", marginBottom: "0.6rem" }}>📅 Best Time to Visit</h3>
                   <p style={{ color: MUTED, fontSize: "0.85rem", lineHeight: 1.65, margin: 0 }}>{animal.bestTime}</p>
@@ -2630,12 +2814,12 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
 
       {/* ── GUIDES TAB ── */}
       {tab === "guides" && (
-        <div className="r-section" style={{ position: "relative", zIndex: 1, maxWidth: "900px", margin: "0 auto", padding: "3rem 2rem 4rem" }}>
+        <div style={{ position: "relative", zIndex: 1, maxWidth: "900px", margin: "0 auto", padding: "3rem 2rem 4rem" }}>
           {!guide ? (
             <>
               <div style={{ textAlign: "center", marginBottom: "3rem" }}>
                 <div style={{ fontSize: "0.7rem", letterSpacing: "0.25em", textTransform: "uppercase", color: G, marginBottom: "1rem" }}>✦ Expert Knowledge ✦</div>
-                <h1 className="r-heading-xl" style={{ fontStyle: "italic", fontSize: "2.5rem", color: TEXT, fontWeight: "normal", marginBottom: "0.8rem" }}>Safari Guides</h1>
+                <h1 style={{ fontStyle: "italic", fontSize: "2.5rem", color: TEXT, fontWeight: "normal", marginBottom: "0.8rem" }}>Safari Guides</h1>
                 <p style={{ color: MUTED, fontSize: "0.95rem" }}>Everything you need to know before booking your African safari.</p>
               </div>
               <div style={{ display: "grid", gap: "1rem" }}>
@@ -2680,7 +2864,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
       )}
 
       {/* FOOTER */}
-      <div className="r-footer" style={{ borderTop: `1px solid ${BORDER}`, padding: "3rem 2rem", textAlign: "center", position: "relative", zIndex: 1 }}>
+      <div style={{ borderTop: `1px solid ${BORDER}`, padding: "3rem 2rem", textAlign: "center", position: "relative", zIndex: 1 }}>
         <div style={{ fontSize: "0.65rem", letterSpacing: "0.2em", textTransform: "uppercase", color: MUTED, marginBottom: "1.5rem" }}>Top Safari Destinations</div>
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0.8rem" }}>
           {DESTINATIONS.map(d => (

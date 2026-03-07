@@ -1,0 +1,52 @@
+Make navigation fully responsive in client/src/App.tsx. Two separate navs need fixing:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. MAIN APP NAV (Plan Safari / Destinations / Animals / Guides)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DESKTOP (> 768px): Keep the existing horizontal tab bar exactly as it is now.
+
+MOBILE (≤ 768px):
+- Hide the horizontal tab bar
+- Show a hamburger icon (☰) in the top right of the nav bar
+- Tapping ☰ opens a full-width dropdown menu below the nav bar with:
+    • Plan Safari
+    • Destinations
+    • Animals
+    • Guides
+    • Operators (links to /operator)
+- Active tab highlighted in gold (#d4a843)
+- Tapping any menu item sets the tab and closes the menu
+- Tapping ☰ again closes the menu
+- Dropdown background: #0d1208, border-bottom: 1px solid rgba(212,168,67,0.15)
+- Menu items: padding 1rem 2rem, font size 1rem, large tap targets
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. OPERATOR PORTAL TAB BAR (✦ Quote / 📬 Leads / 🏕 Suppliers / 📋 Templates / ⚙ Profile)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DESKTOP (> 768px): Keep the existing horizontal tab bar exactly as it is now.
+
+MOBILE (≤ 768px):
+- Hide the horizontal tab bar
+- Show a hamburger icon (☰) in the top right of the operator nav bar
+- Tapping ☰ opens a full-width dropdown with all 5 tabs:
+    • ✦ Quote Generator
+    • 📬 Leads
+    • 🏕 Suppliers
+    • 📋 Templates
+    • ⚙ Profile
+- Active tab highlighted in gold (#d4a843)
+- Tapping any item sets opTab and closes the menu
+- Tapping ☰ again closes the menu
+- Same dropdown styles as main nav: background #0d1208, border-bottom 1px solid rgba(212,168,67,0.15)
+- Menu items: padding 1rem 2rem, font size 1rem
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+IMPLEMENTATION NOTES:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Add two state variables: menuOpen (boolean) and opMenuOpen (boolean)
+- Add isMobile state: useState(window.innerWidth <= 768) with a useEffect that adds a resize event listener and cleans it up on unmount
+- The two menus are independent — opening one does not affect the other
+- Do not change anything else in the file — only the two nav bar sections
+- Keep all colours, fonts, and design identical to current — just reflow for mobile
