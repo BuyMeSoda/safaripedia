@@ -459,6 +459,15 @@ export default function Safaripedia() {
     }
   }, []);
 
+  useEffect(() => {
+    if (window.location.pathname === "/operator") {
+      fetch(`/api/operator/status/${operatorId}`)
+        .then(r => r.json())
+        .then(d => { if (d.verificationStatus) setOpVerificationStatus(d.verificationStatus); })
+        .catch(() => {});
+    }
+  }, [operatorId]);
+
   function nav(t) { setTab(t); setDest(null); setGuide(null); setAnimal(null); }
 
   async function generate() {
@@ -1126,13 +1135,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
       } catch { /* silent */ }
     }
 
-    // ── FETCH verification status on load ──
-    useEffect(() => {
-      fetch(`/api/operator/status/${operatorId}`)
-        .then(r => r.json())
-        .then(d => { if (d.verificationStatus) setOpVerificationStatus(d.verificationStatus); })
-        .catch(() => {});
-    }, [operatorId]);
+    // ── FETCH verification status on load (moved to top-level useEffect) ──
 
     // ── SUBMIT application ──
     async function submitApplication() {
@@ -1194,7 +1197,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
         {/* Nav */}
         <nav className="r-op-nav" style={{ position: "relative", zIndex: 10, borderBottom: `1px solid ${BORDER}`, padding: "1rem 2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div className="r-op-nav-inner" style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+            <div className="r-op-logo" style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap" }}>
               <span style={{ fontSize: "1.4rem" }}>🦁</span>
               <span style={{ fontStyle: "italic", fontSize: "1.2rem", color: G }}>Safaripedia</span>
               <span style={{ fontSize: "0.62rem", letterSpacing: "0.15em", textTransform: "uppercase", color: MUTED, background: "rgba(212,168,67,0.08)", border: `1px solid ${BORDER}`, borderRadius: "20px", padding: "0.2rem 0.6rem" }}>Operator Portal</span>
