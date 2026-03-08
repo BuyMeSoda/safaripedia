@@ -7,38 +7,6 @@ const EXAMPLE_PROMPTS = [
   "10 day Tanzania Grand Circuit on a budget",
 ];
 
-const SYSTEM_PROMPT = `You are a professional African safari travel planner. Generate realistic, well-structured safari itineraries.
-
-Format your response using EXACTLY this markdown structure:
-
-## Trip Overview
-**Location:** ...
-**Duration:** ...
-**Estimated Budget Range:** ...
-
-## Day-by-Day Itinerary
-
-### Day 1 — [Title]
-[Description]
-
-### Day 2 — [Title]
-[Description]
-
-[Continue for all days]
-
-## Wildlife Highlights
-- [animal 1]
-- [animal 2]
-
-## Recommended Lodge Style
-[paragraph]
-
-## Travel Tips
-- [tip 1]
-- [tip 2]
-
-Keep the tone exciting, professional, and inspiring. Include game drives, travel logistics, wildlife highlights, and practical cost estimates.`;
-
 const DESTINATIONS = [
   {
     emoji: "🇰🇪", name: "Maasai Mara", country: "Kenya",
@@ -485,7 +453,7 @@ export default function Safaripedia() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          prompt: `${SYSTEM_PROMPT}\n\nUser request: ${prompt}`
+          userPrompt: prompt,
         }),
       });
       const data = await res.json();
