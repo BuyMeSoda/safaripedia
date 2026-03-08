@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import safaripediaLion from "@assets/Screenshot_2026-03-08_at_20.49.12_1772995868906.png";
 
 const EXAMPLE_PROMPTS = [
   "7 day Kenya safari for $3500 in August",
@@ -535,7 +536,7 @@ Safari request: ${prompt}`
         <div style={{ position: "fixed", inset: 0, pointerEvents: "none", backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E\")", opacity: 0.4 }} />
         <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: "360px", padding: "0 1.5rem" }}>
           <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-            <div style={{ fontSize: "2.5rem", marginBottom: "0.8rem" }}>🦁</div>
+            <img src={safaripediaLion} alt="Safaripedia" style={{ width: "60px", height: "60px", marginBottom: "0.8rem", borderRadius: "50%" }} />
             <div style={{ fontStyle: "italic", fontSize: "1.8rem", color: G, marginBottom: "0.3rem" }}>Safaripedia</div>
             <div style={{ fontSize: "0.72rem", letterSpacing: "0.2em", textTransform: "uppercase", color: MUTED }}>Admin Dashboard</div>
           </div>
@@ -629,7 +630,7 @@ Safari request: ${prompt}`
         {/* Admin Nav */}
         <nav style={{ position: "relative", zIndex: 10, borderBottom: `1px solid ${BORDER}`, padding: "1.2rem 2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.8rem" }}>
-            <span style={{ fontSize: "1.5rem" }}>🦁</span>
+            <img src={safaripediaLion} alt="Safaripedia" style={{ width: "32px", height: "32px", borderRadius: "50%" }} />
             <span style={{ fontStyle: "italic", fontSize: "1.3rem", color: G }}>Safaripedia</span>
             <span style={{ fontSize: "0.65rem", letterSpacing: "0.15em", textTransform: "uppercase", color: MUTED, background: "rgba(212,168,67,0.08)", border: `1px solid ${BORDER}`, borderRadius: "20px", padding: "0.2rem 0.7rem", marginLeft: "0.5rem" }}>Admin</span>
           </div>
@@ -1040,7 +1041,7 @@ Safari request: ${prompt}`
         <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0, backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E\")", opacity: 0.4 }} />
         <nav style={{ position: "relative", zIndex: 10, borderBottom: `1px solid ${BORDER}`, padding: "1.2rem 2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-            <span style={{ fontSize: "1.5rem" }}>🦁</span>
+            <img src={safaripediaLion} alt="Safaripedia" style={{ width: "32px", height: "32px", borderRadius: "50%" }} />
             <span style={{ fontStyle: "italic", fontSize: "1.3rem", color: G }}>Safaripedia</span>
           </div>
           <button onClick={() => { window.location.href = "/"; }} style={{ background: "transparent", border: `1px solid ${BORDER}`, color: MUTED, borderRadius: "8px", padding: "0.4rem 1rem", fontSize: "0.78rem", fontFamily: FONT, cursor: "pointer" }}>← Back to App</button>
@@ -1048,7 +1049,7 @@ Safari request: ${prompt}`
         <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", zIndex: 1 }}>
           <div style={{ width: "100%", maxWidth: "420px", padding: "0 2rem" }}>
             <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-              <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🦁</div>
+              <img src={safaripediaLion} alt="Safaripedia" style={{ width: "72px", height: "72px", marginBottom: "1rem", borderRadius: "50%" }} />
               <h1 style={{ fontStyle: "italic", fontSize: "2rem", color: TEXT, fontWeight: "normal", marginBottom: "0.5rem" }}>Operator Portal</h1>
               <p style={{ color: MUTED, fontSize: "0.88rem" }}>AI-powered safari proposal engine for travel professionals.</p>
             </div>
@@ -1352,7 +1353,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
         <nav className="r-op-nav" style={{ position: "relative", zIndex: 10, borderBottom: `1px solid ${BORDER}`, padding: "1rem 2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div className="r-op-nav-inner" style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
             <div className="r-op-logo" style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap" }}>
-              <span style={{ fontSize: "1.4rem" }}>🦁</span>
+              <img src={safaripediaLion} alt="Safaripedia" style={{ width: "30px", height: "30px", borderRadius: "50%" }} />
               <span style={{ fontStyle: "italic", fontSize: "1.2rem", color: G }}>Safaripedia</span>
               <span style={{ fontSize: "0.62rem", letterSpacing: "0.15em", textTransform: "uppercase", color: MUTED, background: "rgba(212,168,67,0.08)", border: `1px solid ${BORDER}`, borderRadius: "20px", padding: "0.2rem 0.6rem" }}>Operator Portal</span>
             </div>
@@ -1525,7 +1526,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
                     <div style={{ background: "rgba(255,255,255,0.025)", border: `1px solid ${BORDER}`, borderRadius: "14px", padding: "2rem", maxHeight: "75vh", overflowY: "auto" }}>
                       <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", background: "rgba(212,168,67,0.08)", border: "1px solid rgba(212,168,67,0.2)", borderRadius: "20px", padding: "0.25rem 0.8rem", fontSize: "0.68rem", letterSpacing: "0.12em", textTransform: "uppercase" as const, color: G, marginBottom: "1.5rem" }}>📄 Proposal Preview</div>
                       <div style={{ background: "linear-gradient(135deg,rgba(212,168,67,0.12),rgba(212,168,67,0.04))", border: "1px solid rgba(212,168,67,0.25)", borderRadius: "10px", padding: "1.5rem", marginBottom: "1.5rem", textAlign: "center" }}>
-                        <div style={{ fontSize: "1.8rem", marginBottom: "0.5rem" }}>🦁</div>
+                        <img src={safaripediaLion} alt="Safaripedia" style={{ width: "40px", height: "40px", marginBottom: "0.5rem", borderRadius: "50%" }} />
                         <h2 style={{ fontStyle: "italic", fontSize: "1.3rem", color: G, fontWeight: "normal", marginBottom: "0.3rem" }}>{operatorForm.days}-Day {operatorForm.destination} Safari</h2>
                         <p style={{ color: MUTED, fontSize: "0.82rem" }}>For {operatorForm.client || "Valued Client"} · {operatorForm.month || ""}</p>
                         {opProfile.companyName && <p style={{ color: MUTED, fontSize: "0.75rem", marginTop: "0.4rem", fontStyle: "italic" }}>by {opProfile.companyName}</p>}
@@ -1994,7 +1995,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
   if (sharedTripLoading) return (
     <div style={{ fontFamily: FONT, background: BG, minHeight: "100vh", color: TEXT, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ textAlign: "center" }}>
-        <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>🦁</div>
+        <img src={safaripediaLion} alt="Safaripedia" style={{ width: "60px", height: "60px", marginBottom: "1rem", borderRadius: "50%" }} />
         <p style={{ color: MUTED, fontStyle: "italic" }}>Loading safari plan…</p>
       </div>
     </div>
@@ -2023,7 +2024,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
         <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0, backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E\")", opacity: 0.4 }} />
         <nav style={{ position: "relative", zIndex: 10, borderBottom: `1px solid ${BORDER}`, padding: "1.2rem 2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div onClick={() => { window.location.href = "/"; }} style={{ display: "flex", alignItems: "center", gap: "0.6rem", cursor: "pointer" }}>
-            <span style={{ fontSize: "1.5rem" }}>🦁</span>
+            <img src={safaripediaLion} alt="Safaripedia" style={{ width: "32px", height: "32px", borderRadius: "50%" }} />
             <span style={{ fontStyle: "italic", fontSize: "1.3rem", color: G }}>Safaripedia</span>
           </div>
           <button onClick={() => { window.location.href = "/"; }} style={{ background: G, color: BG, border: "none", borderRadius: "8px", padding: "0.5rem 1.2rem", fontSize: "0.8rem", fontFamily: FONT, fontWeight: "bold", cursor: "pointer" }}>
@@ -2134,7 +2135,7 @@ Keep tone professional and inspiring. Write as if from the operator to their cli
       {/* NAV */}
       <nav className="r-nav-main" style={{ position: "relative", zIndex: 10, borderBottom: `1px solid ${BORDER}`, padding: "1.2rem 2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div onClick={() => nav("plan")} style={{ display: "flex", alignItems: "center", gap: "0.6rem", cursor: "pointer" }}>
-          <span style={{ fontSize: "1.5rem" }}>🦁</span>
+          <img src={safaripediaLion} alt="Safaripedia" style={{ width: "32px", height: "32px", borderRadius: "50%" }} />
           <span style={{ fontStyle: "italic", fontSize: "1.3rem", color: G, letterSpacing: "0.02em" }}>Safaripedia</span>
         </div>
         <div className="r-nav-tabs" style={{ display: "flex", gap: "2rem", fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase" }}>

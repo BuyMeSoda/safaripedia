@@ -86,6 +86,13 @@ Routes are defined as typed objects in `shared/routes.ts` with method, path, inp
 - `express-rate-limit` — rate limiting
 - `nanoid` / `uuid` — ID generation
 
+### Brand Icon
+- Lion head image at `public/assets/safaripedia-lion.png` (original) with optimized sizes: 512px, 256px, 64px
+- Favicon at `public/favicon.png` (32x32, generated from the lion image)
+- Imported in App.tsx via `@assets/Screenshot_2026-03-08_at_20.49.12_1772995868906.png` (Vite alias)
+- Used as circular `<img>` tags throughout: 32px in nav bars, 60-72px in login/splash screens, 40px in proposal previews
+- Content-level lion emoji (🦁) in animal data, wildlife labels, social share text, and PDF templates are intentionally kept as emoji
+
 ### Mobile Responsiveness
 - Implemented via CSS media queries in `client/src/index.css` with `@media (max-width: 768px)` breakpoint
 - Uses `!important` overrides to override inline styles in App.tsx
